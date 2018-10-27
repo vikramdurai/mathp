@@ -13,9 +13,11 @@ Math problem generation.
     | Pattern   | `polynomial`,`binomial` |   `string`  |
     | Amount    |   `3`,`4`,`7`,`9`       |   `int`     |
 
-    Usage: `GET /api/<grade>/<syllabus>/<mode>/<pattern>/<amount>`. For example:
-    `GET /api/3/NCERT/Algebra/polynomial/2` gets two Algebra polynomial problems
-    that concern the NCERT syllabus for the 3rd grade.
+    Usage:
+    `GET /api/question?grade=<grade>;syllabus=<syllabus>;mode=<mode>;pattern=<pattern>;amount=<amount>`
+    For example:
+    `GET /api/question?grade=3;syllabus=NCERT;mode=Algebra;pattern=polynomial;amount=2`
+    gets two Algebra polynomial problems that concern the NCERT syllabus for the 3rd grade.
     
     A typical result:
     ```

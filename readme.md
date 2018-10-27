@@ -35,12 +35,12 @@ Math problem generation.
         },
         "reply": [
             {
-                "question": "2ca²b + 4b²ca² = 24.3",
-                "answer": 3.53,
+                "question": "2ca²b + 4b²ca²",
+                "answer": "3ca²b + 4b²",
             },
             {
-                "question": "7x - 3y2z + 3z = 43",
-                "answer": 35,
+                "question": "7x - 3x",
+                "answer": "4x",
             }
         ]
     }

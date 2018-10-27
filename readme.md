@@ -15,11 +15,11 @@ Math problem generation.
 
     Usage:
     ```
-    GET /api/question?grade=<grade>;syllabus=<syllabus>;mode=<mode>;pattern=<pattern>;amount=<amount>
+    GET /api/q?grade=<grade>&syllabus=<syllabus>&mode=<mode>;pattern=<pattern>&amount=<amount>
     ```
     For example:
     ```
-    GET /api/question?grade=3;syllabus=NCERT;mode=Algebra;pattern=polynomial;amount=2
+    GET /api/q?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=2
     ```
     gets two Algebra polynomial problems that concern the NCERT syllabus for the 3rd grade.
     

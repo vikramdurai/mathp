@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -122,6 +123,48 @@ func (p Polynomial) Format() string {
 	}
 	return polynomial
 }
+
+// Question represents client request for problems.
+type Question struct {
+	Grade    int
+	Syllabus string
+	Mode     string
+	Pattern  string
+	Amount   int
+}
+
+// Problem creates a problem according to question criteria
+// and returns it.
+func (q Question) Problem() string {
+	if q.Pattern == "polynomial" || q.Pattern == "Polynomial" || q.Pattern == "POLYNOMIAL" {
+		return NewPolynomial(q.Amount).Format()
+	}
+	return ""
+}
+
 func main() {
-	fmt.Println(NewPolynomial(3).Format())
+	http.HandleFunc("/api/q", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		grade, err := strconv.Atoi(q.Get("grade"))
+		if err != nil {
+			fmt.Fprintf(w, "Error while processing query (the grade part): %v", err)
+			return
+		}
+		syllabus := q.Get("syllabus")
+		mode := q.Get("mode")
+		pattern := q.Get("pattern")
+		amount, err := strconv.Atoi(q.Get("amount"))
+		if err != nil {
+			fmt.Fprintf(w, "Error while processing query (the amount part): %v", err)
+			return
+		}
+		// turn the request into something that can be processed
+		lq := Question{grade, syllabus, mode, pattern, amount + 1}
+		if lq.Problem() == "" {
+			fmt.Fprintf(w, "Sorry, we don't support that kind of problem yet")
+			return
+		}
+		fmt.Fprintf(w, lq.Problem())
+	})
+	http.ListenAndServe(":8080", nil)
 }

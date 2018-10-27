@@ -30,9 +30,17 @@ func randbool() bool {
 
 func genTerm() Term {
 	rand.Seed(time.Now().UnixNano())
-	deg := rand.Intn(10)
-	rand.Seed(time.Now().UnixNano())
 	cof := rand.Intn(10)
+	rand.Seed(time.Now().UnixNano())
+	deg := rand.Intn(10)
+	if cof == 0 && deg == 1 {
+		rand.Seed(time.Now().UnixNano())
+		deg = rand.Intn(10)
+		if cof == 0 && deg == 1 {
+			rand.Seed(time.Now().UnixNano())
+			deg = rand.Intn(10)
+		}
+	}
 	vars := []string{
 		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
 		"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
@@ -67,29 +75,53 @@ func (t Term) formatTerm() string {
 	return answer
 }
 
-// PolynomialGenerator generates a random
-// polynomial problem
-func PolynomialGenerator(terms int) string {
-	polynomial := ""
-	for i := 1; i <= terms; i++ {
+// Polynomial represents
+// a random polynomial problem
+type Polynomial struct {
+	Terms []Term
+}
+
+// NewPolynomial generates a completely
+// random Polynomial
+func NewPolynomial(terms int) Polynomial {
+	p := Polynomial{make([]Term, 0)}
+	for i := 1; i < terms; i++ {
 		x := genTerm()
-		polynomial += x.formatTerm()
-		if i+1 < terms {
-			if x.Positive == true {
+		p.Terms = append(p.Terms, x)
+	}
+	return p
+}
+
+// ToTerms converts a Polynomial to
+// a slice of Terms
+func (p Polynomial) ToTerms() []Term {
+	return p.Terms
+}
+
+// PolynomialFromTerms creates a Polynomial
+// from a slice of Terms
+func PolynomialFromTerms(t []Term) Polynomial {
+	return Polynomial{t}
+}
+
+// Format formats the polynomial
+// and pulls it together
+func (p Polynomial) Format() string {
+	polynomial := ""
+	for i, v := range p.Terms {
+		polynomial += v.formatTerm()
+		if i+1 < len(p.Terms) {
+			if p.Terms[i+1].Positive == true {
 				polynomial += "+"
 				continue
 			}
-			plusorminus := randbool()
-			if plusorminus == true {
-				polynomial += "+"
-			}
-			if plusorminus == false {
-				polynomial += "-"
+			if p.Terms[i+1].Positive != true {
+				continue
 			}
 		}
 	}
 	return polynomial
 }
 func main() {
-	fmt.Println(PolynomialGenerator(3))
+	fmt.Println(NewPolynomial(3).Format())
 }

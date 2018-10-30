@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -126,20 +127,32 @@ func (p Polynomial) Format() string {
 
 // Question represents client request for problems.
 type Question struct {
-	Grade    int
-	Syllabus string
-	Mode     string
-	Pattern  string
-	Amount   int
+	Grade    int    `json:"grade"`
+	Syllabus string `json:"syllabus"`
+	Mode     string `json:"mode"`
+	Pattern  string `json:"pattern"`
+	Amount   int    `json:"amount"`
 }
 
-// Problem creates a problem according to question criteria
+// RequestReply represents a reply made
+// to a client request
+type RequestReply struct {
+	Request Question `json:"request"`
+	Reply   []string `json:"reply"`
+}
+
+// Reply creates problems according to question criteria
 // and returns it.
-func (q Question) Problem() string {
+func (q Question) Reply() []string {
 	if q.Pattern == "polynomial" || q.Pattern == "Polynomial" || q.Pattern == "POLYNOMIAL" {
-		return NewPolynomial(q.Amount).Format()
+		rp := []string{}
+		rand.Seed(time.Now().UnixNano())
+		for i := 0; i < q.Amount; i++ {
+			rp = append(rp, NewPolynomial(rand.Intn(3)+1).Format())
+		}
+		return rp
 	}
-	return ""
+	return nil
 }
 
 func main() {
@@ -159,12 +172,19 @@ func main() {
 			return
 		}
 		// turn the request into something that can be processed
-		lq := Question{grade, syllabus, mode, pattern, amount + 1}
-		if lq.Problem() == "" {
+		lq := Question{grade, syllabus, mode, pattern, amount}
+		if lq.Reply() == nil {
 			fmt.Fprintf(w, "Sorry, we don't support that kind of problem yet")
 			return
 		}
-		fmt.Fprintf(w, lq.Problem())
+		rq := &RequestReply{lq, lq.Reply()}
+		b, err := json.Marshal(rq)
+		if err != nil {
+			fmt.Fprintf(w, "Can't marshal the answer. Sorry!")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(b)
 	})
+	fmt.Println("Starting API server.")
 	http.ListenAndServe(":8080", nil)
 }

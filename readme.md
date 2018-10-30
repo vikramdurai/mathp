@@ -34,14 +34,8 @@ Math problem generation.
             "amount": 2,
         },
         "reply": [
-            {
-                "question": "2ca²b + 4b²ca²",
-                "answer": "3ca²b + 4b²",
-            },
-            {
-                "question": "7x - 3x",
-                "answer": "4x",
-            }
+            "3x + -4y",
+            "4a² - 2bc²a",
         ]
     }
     ```

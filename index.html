@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="./main.css"> -->
+    <title>MathP: Math problem generation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+        }
+        #demo {
+            background-color: #f6f8fa;
+            color: black;
+            width: 51em;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MathP</h1>
+    <p>Math problem generation, on demand.</p>
+    <h2>Try it now!</h2>
+    <div id="demo">
+        <code>
+            &nbsp;# this should reply with a JSON response <br>
+            &nbsp;curl https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=3
+        </code>
+    </div>
+    <p>Liked that? Check out the <a href="https://github.com/vikramdurai/mathp/blob/master/readme.md">docs</a> to learn more!</p>
+</body>
+</html>

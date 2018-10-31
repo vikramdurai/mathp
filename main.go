@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -156,7 +157,14 @@ func (q Question) Reply() []string {
 }
 
 func main() {
-	http.HandleFunc("/api/q", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		b, err := ioutil.ReadFile("index.html")
+		if err != nil {
+			w.Write([]byte("Error while trying to serve index"))
+		}
+		w.Write(b)
+	})
+	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		grade, err := strconv.Atoi(q.Get("grade"))
 		if err != nil {

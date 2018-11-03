@@ -4,31 +4,85 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Shadows+Into+Light" rel="stylesheet">
     <!-- <link rel="stylesheet" href="./main.css"> -->
     <title>MathP: Math problem generation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Roboto, sans-serif;
+            text-align: center;
+        }
+        #math {
+            color: red;
+        }
+        #mathP {
+            color:slateblue;
+            font-size: 40px;
+            font-family: "Shadows Into Light", cursive;
         }
         #demo {
-            background-color: #f6f8fa;
-            color: black;
-            width: 51em;
-            border-radius: 5px;
+            margin-top: 4px;
+            margin-right: 30%;
+            margin-left: 30%;
+            width: auto;
+            height: auto;
+        }
+        .demo-code-option:hover {
+            color: blue;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>MathP</h1>
-    <p>Math problem generation, on demand.</p>
-    <h2>Try it now!</h2>
+    <div id="header">
+        <h1><span id="math">Math<span id="mathP">P<span></h1>
+        <p>Math problem generation, on demand.</p>
+    </div>
+    <h2>Check it out</h2>
+    <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span>
     <div id="demo">
-        <code>
-            &nbsp;# this should reply with a JSON response <br>
-            &nbsp;curl https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=3
-        </code>
+            <div class='code'><div class='line'>curl -i -H 'Accept: application/json'</div><div class='line'>'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2'</div></div>
     </div>
     <p>Liked that? Check out the <a href="https://github.com/vikramdurai/mathp/blob/master/readme.md">docs</a> to learn more!</p>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <style>
+        .demo-code-option {
+            text-align:left;
+            margin-left:0;
+        }
+        .code {
+            background: #ececec;
+            padding: 2em;
+            font-size: 0.8em;
+            font-weight: 300;
+            text-align: left;
+            border-radius: 3px;
+        }
+        .code .line {
+            display: block;
+            margin-bottom: 0.4em;
+            color: #555;
+            overflow-wrap: break-word;
+        }
+        .code .line.indent.one {margin-left:2em;}
+        .code .line.indent.two {margin-left:4em;}
+    </style>
+<script>
+        // this code controls the dynamic code part
+        var selections = [
+            null,
+            "<div class='code'><div class='line'>curl -i -H 'Accept: application/json'</div><div class='line'>'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2'</div></div>", // curl
+            "<div class='code'><div class='line'>import urllib.request</div><div class='line'>import json</div><div class='line'>with open(urllib.request.urlopen('https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2')) as u:<div class='line indent one'>print(json.loads(u.read()))</div></div>", // python3
+            "<div class='code'><div class='line'>from urllib2 import urlopen</div><div class='line'>from json import loads</div><div class='line'>url = 'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=3'</div><div class='line'>print(loads(urlopen(url).read()))</div>", // python
+            "<div class='code'><div class='line'>package main</div><div class='line'>&nbsp</div><div class='line'>import (</div><div class='line indent one'>\"fmt\"</div><div class='line indent one'>\"io/ioutil\"</div><div class='line indent one'>\"net/http\"</div><div class='line'>)</div><div class='line'>&nbsp</div><div class='line'>func main() {</div><div class='line indent one'>url := \"https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=2\"</div><div class='line indent one'>resp, err := http.Get(url)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>defer resp.Body.Close()</div><div class='line indent one'>html, err := ioutil.ReadAll(resp.Body)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>fmt.Printf(\"%s\\n\", html)</div><div class='line'>}</div></div>", // golang
+            "<div class='code'><div class='line'>const https = require('https');</div><div class='line'>const url = 'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=2';</div><div class='line'><div class='line'>&nbsp</div><div class='line'>https.get(url, (res) => {</div><div class='line indent one'>res.on('data', (d) => {</div><div class='line indent two'>process.stdout.write(JSON.parse(d))</div><div class='line indent one'>});</div><div class='line'>}).on('error', (e) => console.error(e));</div></div>", // nodejs
+        ];
+        codeChange = function(index) {
+            console.log("Called. Index number", index);
+            var d = selections[index];
+            $("#demo").html(d);
+        };
+    </script>
 </body>
 </html>

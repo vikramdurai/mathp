@@ -7,12 +7,13 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
 
 // Term represents an individual
-// term in a polynomial
+// term in any algebraic pattern
 type Term struct {
 	Coefficient int
 	Positive    bool
@@ -31,11 +32,14 @@ func randbool() bool {
 	}
 }
 
-func genTerm() Term {
+func genTerm(degree bool) Term {
 	rand.Seed(time.Now().UnixNano())
 	cof := rand.Intn(10)
-	rand.Seed(time.Now().UnixNano())
-	deg := rand.Intn(10)
+	deg := 1
+	if degree {
+		rand.Seed(time.Now().UnixNano())
+		deg = rand.Intn(10)
+	}
 	if cof == 0 && deg == 1 {
 		rand.Seed(time.Now().UnixNano())
 		deg = rand.Intn(10)
@@ -84,15 +88,61 @@ type Polynomial struct {
 	Terms []Term
 }
 
+// LinearEquation represents a
+// random linear equation to solve
+type LinearEquation struct {
+	// The linear equation looks
+	// like the following:
+	// N\Nx o Nx\N = N o Nx\X
+	// N  means a constant coefficent.
+	// Nx means a term with coefficent and variable
+	// X  means a constant variable.
+	// o  means either addition or subtraction.
+	// A regular expression to validate a Linear Equation
+	// [123456789]|([123456789][abcdefghijklmnop]) [-+] = [123456789] [-+] ([123456789][abcdefghijklmnop])|[abcdefghijklmnop]
+	Terms   []Term
+	operand string
+}
+
 // NewPolynomial generates a completely
 // random Polynomial
 func NewPolynomial(terms int) Polynomial {
 	p := Polynomial{make([]Term, 0)}
 	for i := 1; i < terms; i++ {
-		x := genTerm()
+		x := genTerm(true)
 		p.Terms = append(p.Terms, x)
 	}
 	return p
+}
+
+// NewLinearEquation generates a completely random
+// LinearEquation
+func NewLinearEquation() LinearEquation {
+	t := make([]Term, 0)
+	restr := "[123456789]|([123456789][abcdefghijklmnop]) [-+] [123456789]|([123456789][abcdefghijklmnop]) = [123456789] [-+] ([123456789][abcdefghijklmnop])|[abcdefghijklmnop]"
+	re := regexp.MustCompile(restr)
+	operand := ""
+	if randbool() == true {
+		operand = "+"
+	} else {
+		operand = "-"
+	}
+	for i := 1; i < 6; i++ {
+		x := genTerm(false)
+		t = append(t, x)
+	}
+	// now we need to verify
+	lestr := fmt.Sprintf("%s %s %s = %s %s %s", t[0].formatTerm(), operand, t[1].formatTerm(), t[2].formatTerm(), operand, t[3].formatTerm())
+	if !re.MatchString(lestr) {
+		return NewLinearEquation()
+	}
+	return LinearEquation{t, operand}
+}
+
+// FormatEquation formats the linear equation
+func (l LinearEquation) FormatEquation() string {
+	t := l.Terms
+	return fmt.Sprintf("%s %s %s = %s %s %s", t[0].formatTerm(), l.operand, t[1].formatTerm(), t[2].formatTerm(), l.operand, t[3].formatTerm())
 }
 
 // ToTerms converts a Polynomial to
@@ -145,11 +195,18 @@ type RequestReply struct {
 // Reply creates problems according to question criteria
 // and returns it.
 func (q Question) Reply() []string {
-	if q.Pattern == "polynomial" || q.Pattern == "Polynomial" || q.Pattern == "POLYNOMIAL" {
+	if q.Pattern == "polynomial" || q.Pattern == "Polynomial" {
 		rp := []string{}
 		rand.Seed(time.Now().UnixNano())
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewPolynomial(rand.Intn(3)+1).Format())
+		}
+		return rp
+	}
+	if q.Pattern == "linearequation" || q.Pattern == "Linearequation" || q.Pattern == "LinearEquation" {
+		rp := []string{}
+		for i := 0; i < q.Amount; i++ {
+			rp = append(rp, NewLinearEquation().FormatEquation())
 		}
 		return rp
 	}

@@ -32,26 +32,12 @@
             color: blue;
             cursor: pointer;
         }
-    </style>
-</head>
-<body>
-    <div id="header">
-        <h1><span id="math">Math<span id="mathP">P<span></h1>
-        <p>Math problem generation, on demand.</p>
-    </div>
-    <h2>Check it out</h2>
-    <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span>
-    <div id="demo">
-            <div class='code'><div class='line'>curl -i -H 'Accept: application/json'</div><div class='line'>'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2'</div></div>
-    </div>
-    <p>Liked that? Check out the <a href="https://github.com/vikramdurai/mathp/blob/master/readme.md">docs</a> to learn more!</p>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <style>
         .demo-code-option {
             text-align:left;
             margin-left:0;
         }
         .code {
+            font-family: 'Courier New', Courier, monospace;
             background: #ececec;
             padding: 2em;
             font-size: 0.8em;
@@ -68,6 +54,19 @@
         .code .line.indent.one {margin-left:2em;}
         .code .line.indent.two {margin-left:4em;}
     </style>
+</head>
+<body>
+    <div id="header">
+        <h1><span id="math">Math<span id="mathP">P<span></h1>
+        <p>Math problem generation, on demand.</p>
+    </div>
+    <h2>Check it out</h2>
+    <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span>
+    <div id="demo">
+            <div class='code'><div class='line'>curl -i -H 'Accept: application/json'</div><div class='line'>'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2'</div></div>
+    </div>
+    <p>Liked that? Check out the <a href="https://github.com/vikramdurai/mathp/blob/master/readme.md">docs</a> to learn more!</p>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script>
         // this code controls the dynamic code part
         var selections = [

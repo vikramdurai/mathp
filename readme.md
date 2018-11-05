@@ -10,7 +10,7 @@ Math problem generation.
     | Grade     |    `5`,`3`,`6`          |    `int`    |
     | Syllabus  |   `NCERT`,`CBSE`        |   `string`  |
     | Mode      |`Algebra`,`Geometry`     |   `string`  |
-    | Pattern   | `polynomial`,`binomial` |   `string`  |
+    | Pattern   | `polynomial`,`lineq`    |   `string`  |
     | Amount    |   `3`,`4`,`7`,`9`       |   `int`     |
 
     Usage:

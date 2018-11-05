@@ -32,20 +32,16 @@ func randbool() bool {
 	}
 }
 
-func genTerm(degree bool) Term {
+func genTerm(degree int) Term {
 	rand.Seed(time.Now().UnixNano())
 	cof := rand.Intn(10)
-	deg := 1
-	if degree {
-		rand.Seed(time.Now().UnixNano())
-		deg = rand.Intn(10)
-	}
+	deg := degree
 	if cof == 0 && deg == 1 {
 		rand.Seed(time.Now().UnixNano())
-		deg = rand.Intn(10)
+		cof = rand.Intn(10)
 		if cof == 0 && deg == 1 {
 			rand.Seed(time.Now().UnixNano())
-			deg = rand.Intn(10)
+			cof = rand.Intn(10)
 		}
 	}
 	vars := []string{
@@ -109,7 +105,8 @@ type LinearEquation struct {
 func NewPolynomial(terms int) Polynomial {
 	p := Polynomial{make([]Term, 0)}
 	for i := 1; i < terms; i++ {
-		x := genTerm(true)
+		rand.Seed(time.Now().UnixNano())
+		x := genTerm(rand.Intn(7))
 		p.Terms = append(p.Terms, x)
 	}
 	return p
@@ -127,8 +124,8 @@ func NewLinearEquation() LinearEquation {
 	} else {
 		operand = "-"
 	}
-	for i := 1; i < 6; i++ {
-		x := genTerm(false)
+	for i := 0; i < 4; i++ {
+		x := genTerm(1)
 		t = append(t, x)
 	}
 	// now we need to verify

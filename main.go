@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"regexp"
 	"strconv"
 	"time"
 )
@@ -36,6 +35,11 @@ func genTerm(degree int) Term {
 	rand.Seed(time.Now().UnixNano())
 	cof := rand.Intn(10)
 	deg := degree
+	if degree == 2 {
+		if randbool() == false {
+			deg = 1
+		}
+	}
 	if cof == 0 && deg == 1 {
 		rand.Seed(time.Now().UnixNano())
 		cof = rand.Intn(10)
@@ -100,6 +104,11 @@ type LinearEquation struct {
 	operand string
 }
 
+type QuadracticEquation struct {
+	Terms   []Term
+	operand string
+}
+
 // NewPolynomial generates a completely
 // random Polynomial
 func NewPolynomial(terms int) Polynomial {
@@ -116,30 +125,74 @@ func NewPolynomial(terms int) Polynomial {
 // LinearEquation
 func NewLinearEquation() LinearEquation {
 	t := make([]Term, 0)
-	restr := "[123456789]|([123456789][abcdefghijklmnop]) [-+] [123456789]|([123456789][abcdefghijklmnop]) = [123456789] [-+] ([123456789][abcdefghijklmnop])|[abcdefghijklmnop]"
-	re := regexp.MustCompile(restr)
-	operand := ""
-	if randbool() == true {
-		operand = "+"
-	} else {
-		operand = "-"
-	}
-	for i := 0; i < 4; i++ {
+	operand := "+"
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < rand.Intn(5)+3; i++ {
 		x := genTerm(1)
 		t = append(t, x)
 	}
-	// now we need to verify
-	lestr := fmt.Sprintf("%s %s %s = %s %s %s", t[0].formatTerm(), operand, t[1].formatTerm(), t[2].formatTerm(), operand, t[3].formatTerm())
-	if !re.MatchString(lestr) {
-		return NewLinearEquation()
-	}
 	return LinearEquation{t, operand}
+}
+
+// NewQuadracticEquation generates a completely random
+// QuadracticEquation
+func NewQuadracticEquation() QuadracticEquation {
+	t := make([]Term, 0)
+	operand := "+"
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < rand.Intn(5)+3; i++ {
+		x := genTerm(2)
+		t = append(t, x)
+	}
+	return QuadracticEquation{t, operand}
 }
 
 // FormatEquation formats the linear equation
 func (l LinearEquation) FormatEquation() string {
 	t := l.Terms
-	return fmt.Sprintf("%s %s %s = %s %s %s", t[0].formatTerm(), l.operand, t[1].formatTerm(), t[2].formatTerm(), l.operand, t[3].formatTerm())
+	one := t[:len(t)/2]
+	two := t[len(t)/2:]
+	lstr := ""
+	for i, v := range one {
+		if i+1 < len(one) {
+			lstr += fmt.Sprintf("%s %s ", v.formatTerm(), l.operand)
+		} else {
+			lstr += fmt.Sprintf("%s ", v.formatTerm())
+		}
+	}
+	lstr += "= "
+	for i, v := range two {
+		if i+1 < len(two) {
+			lstr += fmt.Sprintf("%s %s ", v.formatTerm(), l.operand)
+		} else {
+			lstr += fmt.Sprintf("%s", v.formatTerm())
+		}
+	}
+	return lstr
+}
+
+// FormatEquation formats the quadractic equation
+func (q QuadracticEquation) FormatEquation() string {
+	t := q.Terms
+	one := t[:len(t)/2]
+	two := t[len(t)/2:]
+	qstr := ""
+	for i, v := range one {
+		if i+1 < len(one) {
+			qstr += fmt.Sprintf("%s %s ", v.formatTerm(), q.operand)
+		} else {
+			qstr += fmt.Sprintf("%s ", v.formatTerm())
+		}
+	}
+	qstr += "= "
+	for i, v := range two {
+		if i+1 < len(two) {
+			qstr += fmt.Sprintf("%s %s ", v.formatTerm(), q.operand)
+		} else {
+			qstr += fmt.Sprintf("%s", v.formatTerm())
+		}
+	}
+	return qstr
 }
 
 // ToTerms converts a Polynomial to
@@ -204,6 +257,13 @@ func (q Question) Reply() []string {
 		rp := []string{}
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewLinearEquation().FormatEquation())
+		}
+		return rp
+	}
+	if q.Pattern == "quadracticequation" || q.Pattern == "Quadracticequation" || q.Pattern == "QuadracticEquation" {
+		rp := []string{}
+		for i := 0; i < q.Amount; i++ {
+			rp = append(rp, NewQuadracticEquation().FormatEquation())
 		}
 		return rp
 	}

@@ -228,11 +228,11 @@ func (p Polynomial) Format() string {
 
 // Question represents client request for problems.
 type Question struct {
-	Grade    int    `json:"grade"`
-	Syllabus string `json:"syllabus"`
-	Mode     string `json:"mode"`
-	Pattern  string `json:"pattern"`
-	Amount   int    `json:"amount"`
+	// Grade    int    `json:"grade"`
+	// Syllabus string `json:"syllabus"`
+	// Mode     string `json:"mode"`
+	Pattern string `json:"pattern"`
+	Amount  int    `json:"amount"`
 }
 
 // RequestReply represents a reply made
@@ -260,7 +260,7 @@ func (q Question) Reply() []string {
 		}
 		return rp
 	}
-	if q.Pattern == "quadracticequation" || q.Pattern == "Quadracticequation" || q.Pattern == "QuadracticEquation" {
+	if q.Pattern == "quadractic" || q.Pattern == "Quadractic" {
 		rp := []string{}
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewQuadracticEquation().FormatEquation())
@@ -280,13 +280,13 @@ func main() {
 	})
 	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
-		grade, err := strconv.Atoi(q.Get("grade"))
-		if err != nil {
-			fmt.Fprintf(w, "Error while processing query (the grade part): %v", err)
-			return
-		}
-		syllabus := q.Get("syllabus")
-		mode := q.Get("mode")
+		// grade, err := strconv.Atoi(q.Get("grade"))
+		// if err != nil {
+		// 	fmt.Fprintf(w, "Error while processing query (the grade part): %v", err)
+		// 	return
+		// }
+		// syllabus := q.Get("syllabus")
+		// mode := q.Get("mode")
 		pattern := q.Get("pattern")
 		amount, err := strconv.Atoi(q.Get("amount"))
 		if err != nil {
@@ -294,7 +294,8 @@ func main() {
 			return
 		}
 		// turn the request into something that can be processed
-		lq := Question{grade, syllabus, mode, pattern, amount}
+		// lq := Question{grade, syllabus, mode, pattern, amount}
+		lq := Question{pattern, amount}
 		if lq.Reply() == nil {
 			fmt.Fprintf(w, "Sorry, we don't support that kind of problem yet")
 			return

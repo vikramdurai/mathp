@@ -53,6 +53,10 @@
         }
         .code .line.indent.one {margin-left:2em;}
         .code .line.indent.two {margin-left:4em;}
+
+        #amount {
+            width: 50px;
+        }
     </style>
 </head>
 <body>
@@ -61,27 +65,43 @@
         <p>Math problem generation, on demand.</p>
     </div>
     <h2>Check it out</h2>
-    <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span>
+    Code to get <input type="number" onchange="codeChange()" id="amount" value="2" min="1"> <select id="topic" onchange="codeChange()">
+        <option value="polynomial" selected>polynomials</option>
+        <option value="linearequation">linear equations</option>
+        <option value="quadractic">quadractics</option>
+    </select> in <select id="lang" onchange="codeChange()">
+        <option value="curl" selected>curl</option>
+        <option value="python3">python3</option>
+        <option value="python">python</option>
+        <option value="golang">golang</option>
+        <option value="nodejs">nodejs</option>
+    </select>
+    <!-- <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span> -->
     <div id="demo">
-            <div class='code'><div class='line'>curl -i -H 'Accept: application/json'</div><div class='line'>'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2'</div></div>
+            <div class='code'><div class='line'>curl -i -H 'Accept: application/json' 'https://mathp.cleverapps.io/api/?pattern=polynomial&amount=2'</div></div>
     </div>
     <p>Liked that? Check out the <a href="https://github.com/vikramdurai/mathp/blob/master/readme.md">docs</a> to learn more!</p>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script>
-        // this code controls the dynamic code part
-        var selections = [
-            null,
-            "<div class='code'><div class='line'>curl -i -H 'Accept: application/json'</div><div class='line'>'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2'</div></div>", // curl
-            "<div class='code'><div class='line'>import urllib.request</div><div class='line'>import json</div><div class='line'>with open(urllib.request.urlopen('https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&pattern=polynomial&amount=2')) as u:<div class='line indent one'>print(json.loads(u.read()))</div></div>", // python3
-            "<div class='code'><div class='line'>from urllib2 import urlopen</div><div class='line'>from json import loads</div><div class='line'>url = 'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=3'</div><div class='line'>print(loads(urlopen(url).read()))</div>", // python
-            "<div class='code'><div class='line'>package main</div><div class='line'>&nbsp</div><div class='line'>import (</div><div class='line indent one'>\"fmt\"</div><div class='line indent one'>\"io/ioutil\"</div><div class='line indent one'>\"net/http\"</div><div class='line'>)</div><div class='line'>&nbsp</div><div class='line'>func main() {</div><div class='line indent one'>url := \"https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=2\"</div><div class='line indent one'>resp, err := http.Get(url)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>defer resp.Body.Close()</div><div class='line indent one'>html, err := ioutil.ReadAll(resp.Body)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>fmt.Printf(\"%s\\n\", html)</div><div class='line'>}</div></div>", // golang
-            "<div class='code'><div class='line'>const https = require('https');</div><div class='line'>const url = 'https://mathp.cleverapps.io/api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=2';</div><div class='line'><div class='line'>&nbsp</div><div class='line'>https.get(url, (res) => {</div><div class='line indent one'>res.on('data', (d) => {</div><div class='line indent two'>process.stdout.write(JSON.parse(d))</div><div class='line indent one'>});</div><div class='line'>}).on('error', (e) => console.error(e));</div></div>", // nodejs
-        ];
-        codeChange = function(index) {
-            console.log("Called. Index number", index);
-            var d = selections[index];
-            $("#demo").html(d);
+    var currentValues = {amount: 2, topic: "polynomial", lang: "curl"};
+    urlBuild = function(v) {
+        return 'https://mathp.cleverapps.io/api/?pattern=' + v.topic + '&amount=' + v.amount;
+    };
+    // this code controls the dynamic code part
+    codeChange = function() {
+        var chV = {amount: $("#amount").val(), topic: $("#topic").find(":selected").text(), lang: $("#lang").find(":selected").text()};
+        console.log("Changed values:", chV)
+        currentValues = chV;
+        var u = urlBuild(currentValues);
+        var langSelect = {
+            "curl": "<div class='code'><div class='line'>curl -i -H 'Accept: application/json' " + u + "</div></div>", // curl
+            "python3": "<div class='code'><div class='line'>import urllib.request</div><div class='line'>import json</div><div class='line'>with open(urllib.request.urlopen('"+ u +"')) as u:<div class='line indent one'>print(json.loads(u.read()))</div></div>", // python3
+            "python": "<div class='code'><div class='line'>from urllib2 import urlopen</div><div class='line'>from json import loads</div><div class='line'>url = '"+ u +"'</div><div class='line'>print(loads(urlopen(url).read()))</div>", // python
+            "golang": "<div class='code'><div class='line'>package main</div><div class='line'>&nbsp</div><div class='line'>import (</div><div class='line indent one'>\"fmt\"</div><div class='line indent one'>\"io/ioutil\"</div><div class='line indent one'>\"net/http\"</div><div class='line'>)</div><div class='line'>&nbsp</div><div class='line'>func main() {</div><div class='line indent one'>url := \""+ u +"\"</div><div class='line indent one'>resp, err := http.Get(url)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>defer resp.Body.Close()</div><div class='line indent one'>html, err := ioutil.ReadAll(resp.Body)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>fmt.Printf(\"%s\\n\", html)</div><div class='line'>}</div></div>", // golang
+            "nodejs": "<div class='code'><div class='line'>const https = require('https');</div><div class='line'>const url = '"+u+"';</div><div class='line'><div class='line'>&nbsp</div><div class='line'>https.get(url, (res) => {</div><div class='line indent one'>res.on('data', (d) => {</div><div class='line indent two'>process.stdout.write(JSON.parse(d))</div><div class='line indent one'>});</div><div class='line'>}).on('error', (e) => console.error(e));</div></div>", // nodejs
         };
+        $("#demo").html(langSelect[currentValues.lang]);
+    };
     </script>
 </body>
 </html>

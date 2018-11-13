@@ -13,23 +13,23 @@ Math problem generation.
     | Pattern   | `polynomial`,`lineq`    |   `string`  |
     | Amount    |   `3`,`4`,`7`,`9`       |   `int`     |
 
+    Currently we only use Pattern and Amount, so feel free to omit them in the url
+    for the time being.
+
     Usage:
     ```
-    GET /api/?grade=<grade>&syllabus=<syllabus>&mode=<mode>;pattern=<pattern>&amount=<amount>
+    GET /api/?pattern=<pattern>&amount=<amount>
     ```
     For example:
     ```
-    GET /api/?grade=3&syllabus=ncert&mode=algebra&pattern=polynomial&amount=2
+    GET /api/?pattern=polynomial&amount=2
     ```
-    gets two Algebra polynomial problems that concern the NCERT syllabus for the 3rd grade.
+    gets two Algebra polynomials.
     
     A typical result:
     ```
     {
         "request": {
-            "grade": 3,
-            "syllabus": "NCERT",
-            "mode": "Algebra",
             "pattern": "polynomial",
             "amount": 2,
         },

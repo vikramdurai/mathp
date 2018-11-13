@@ -70,11 +70,11 @@
         <option value="linearequation">linear equations</option>
         <option value="quadractic">quadractics</option>
     </select> in <select id="lang" onchange="codeChange()">
-        <option value="curl" selected>curl</option>
-        <option value="python3">python3</option>
-        <option value="python">python</option>
-        <option value="golang">golang</option>
-        <option value="nodejs">nodejs</option>
+        <option selected>curl</option>
+        <option>python3</option>
+        <option>python</option>
+        <option>golang</option>
+        <option>nodejs</option>
     </select>
     <!-- <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span> -->
     <div id="demo">
@@ -89,7 +89,7 @@
     };
     // this code controls the dynamic code part
     codeChange = function() {
-        var chV = {amount: $("#amount").val(), topic: $("#topic").find(":selected").text(), lang: $("#lang").find(":selected").text()};
+        var chV = {amount: $("#amount").val(), topic: $("#topic").find(":selected").val(), lang: $("#lang").find(":selected").text()};
         console.log("Changed values:", chV)
         currentValues = chV;
         var u = urlBuild(currentValues);

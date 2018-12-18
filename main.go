@@ -8,7 +8,10 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/jung-kurt/gofpdf"
 )
 
 // Term represents an individual
@@ -79,6 +82,10 @@ func (t Term) formatTerm() string {
 	if t.Degree > 1 {
 		answer += superscriptToTwenty[t.Degree]
 	}
+	if answer == "" {
+		t.Degree += 1
+		return t.formatTerm()
+	}
 	return answer
 }
 
@@ -86,27 +93,6 @@ func (t Term) formatTerm() string {
 // a random polynomial problem
 type Polynomial struct {
 	Terms []Term
-}
-
-// LinearEquation represents a
-// random linear equation to solve
-type LinearEquation struct {
-	// The linear equation looks
-	// like the following:
-	// N\Nx o Nx\N = N o Nx\X
-	// N  means a constant coefficent.
-	// Nx means a term with coefficent and variable
-	// X  means a constant variable.
-	// o  means either addition or subtraction.
-	// A regular expression to validate a Linear Equation
-	// [123456789]|([123456789][abcdefghijklmnop]) [-+] = [123456789] [-+] ([123456789][abcdefghijklmnop])|[abcdefghijklmnop]
-	Terms   []Term
-	operand string
-}
-
-type QuadracticEquation struct {
-	Terms   []Term
-	operand string
 }
 
 // NewPolynomial generates a completely
@@ -119,80 +105,6 @@ func NewPolynomial(terms int) Polynomial {
 		p.Terms = append(p.Terms, x)
 	}
 	return p
-}
-
-// NewLinearEquation generates a completely random
-// LinearEquation
-func NewLinearEquation() LinearEquation {
-	t := make([]Term, 0)
-	operand := "+"
-	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < rand.Intn(5)+3; i++ {
-		x := genTerm(1)
-		t = append(t, x)
-	}
-	return LinearEquation{t, operand}
-}
-
-// NewQuadracticEquation generates a completely random
-// QuadracticEquation
-func NewQuadracticEquation() QuadracticEquation {
-	t := make([]Term, 0)
-	operand := "+"
-	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < rand.Intn(5)+3; i++ {
-		x := genTerm(2)
-		t = append(t, x)
-	}
-	return QuadracticEquation{t, operand}
-}
-
-// FormatEquation formats the linear equation
-func (l LinearEquation) FormatEquation() string {
-	t := l.Terms
-	one := t[:len(t)/2]
-	two := t[len(t)/2:]
-	lstr := ""
-	for i, v := range one {
-		if i+1 < len(one) {
-			lstr += fmt.Sprintf("%s %s ", v.formatTerm(), l.operand)
-		} else {
-			lstr += fmt.Sprintf("%s ", v.formatTerm())
-		}
-	}
-	lstr += "= "
-	for i, v := range two {
-		if i+1 < len(two) {
-			lstr += fmt.Sprintf("%s %s ", v.formatTerm(), l.operand)
-		} else {
-			lstr += fmt.Sprintf("%s", v.formatTerm())
-		}
-	}
-	return lstr
-}
-
-// FormatEquation formats the quadractic equation
-func (q QuadracticEquation) FormatEquation() string {
-	t := q.Terms
-	one := t[:len(t)/2]
-	two := t[len(t)/2:]
-	qstr := ""
-	for i, v := range one {
-		if i+1 < len(one) {
-			qstr += fmt.Sprintf("%s %s ", v.formatTerm(), q.operand)
-		} else {
-			qstr += fmt.Sprintf("%s ", v.formatTerm())
-		}
-	}
-	qstr += "= "
-	for i, v := range two {
-		if i+1 < len(two) {
-			qstr += fmt.Sprintf("%s %s ", v.formatTerm(), q.operand)
-		} else {
-			qstr += fmt.Sprintf("%s", v.formatTerm())
-		}
-	}
-	return qstr
 }
 
 // ToTerms converts a Polynomial to
@@ -226,6 +138,94 @@ func (p Polynomial) Format() string {
 	return polynomial
 }
 
+// LinearEquation represents a
+// random linear equation to solve
+type LinearEquation struct {
+	// The linear equation looks
+	// like the following:
+	// N\Nx o Nx\N = N o Nx\X
+	// N  means a constant coefficent.
+	// Nx means a term with coefficent and variable
+	// X  means a constant variable.
+	// o  means either addition or subtraction.
+	// A regular expression to validate a Linear Equation
+	// [123456789]|([123456789][abcdefghijklmnop]) [-+] = [123456789] [-+] ([123456789][abcdefghijklmnop])|[abcdefghijklmnop]
+	Terms   []Term
+	operand string
+}
+
+// NewLinearEquation generates a completely random
+// LinearEquation
+func NewLinearEquation() LinearEquation {
+	t := make([]Term, 0)
+	operand := "+"
+	rand.Seed(time.Now().UnixNano())
+	t = append(t, genTerm(rand.Intn(1)))
+	if t[0].Degree == 1 {
+		rand.Seed(time.Now().UnixNano())
+		t = append(t, genTerm(rand.Intn(1)))
+	} else {
+		t = append(t, genTerm(1))
+	}
+	t = append(t, genTerm(0))
+	return LinearEquation{t, operand}
+}
+
+func (l LinearEquation) Solve() {
+	ls := l.FormatEquation()
+	// 12x - 4 = 20
+	// 12x - 4 + 4 = 20 + 4
+	// 12x = 20 + 4
+
+	// identify the left and right sides of the equation
+	var leftEq, rightEq string
+	eqArr := strings.FieldsFunc(ls, func(c rune) bool { return c == '=' })
+	leftEq = eqArr[0]
+	rightEq = eqArr[1]
+
+	// spread over the operations
+	leftEqSlice := strings.Split(leftEq, " ")
+	for i, v := range leftEqSlice {
+		if v == "+" || v == "-" {
+			numStr := leftEqSlice[i+1]
+			var strToSuffix string
+			if v == "+" {
+				strToSuffix = "-" + numStr
+			} else if v == "-" {
+				strToSuffix = "+" + numStr
+			}
+			leftEq += strToSuffix
+			rightEq += strToSuffix
+		}
+	}
+}
+
+// FormatEquation formats the linear equation
+func (l LinearEquation) FormatEquation() string {
+	return fmt.Sprintf("%s %s %s = %s", l.Terms[0].formatTerm(), l.operand, l.Terms[1].formatTerm(), l.Terms[2].formatTerm())
+}
+
+type QuadracticEquation struct {
+	Terms   []Term
+	operand string
+}
+
+// NewQuadracticEquation generates a completely random
+// QuadracticEquation
+func NewQuadracticEquation() QuadracticEquation {
+	t := make([]Term, 0)
+	operand := "+"
+	t = append(t, genTerm(2))
+	t = append(t, genTerm(2))
+	t = append(t, genTerm(0))
+	return QuadracticEquation{t, operand}
+}
+
+// FormatEquation formats the quadractic equation
+func (q QuadracticEquation) FormatEquation() string {
+	return fmt.Sprintf("%s %s %s = %s", q.Terms[0].formatTerm(), q.operand, q.Terms[1].formatTerm(), q.Terms[2].formatTerm())
+}
+
 // Question represents client request for problems.
 type Question struct {
 	// Grade    int    `json:"grade"`
@@ -235,7 +235,7 @@ type Question struct {
 	Amount  int    `json:"amount"`
 }
 
-// RequestReply represents a reply made
+// RequestReply represents a server reply made
 // to a client request
 type RequestReply struct {
 	Request Question `json:"request"`
@@ -253,7 +253,7 @@ func (q Question) Reply() []string {
 		}
 		return rp
 	}
-	if q.Pattern == "linearequation" || q.Pattern == "Linearequation" || q.Pattern == "LinearEquation" {
+	if q.Pattern == "lineareq" {
 		rp := []string{}
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewLinearEquation().FormatEquation())
@@ -271,10 +271,20 @@ func (q Question) Reply() []string {
 }
 
 func main() {
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("frontend"))))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		b, err := ioutil.ReadFile("index.html")
+		if r.URL.Path != "/" {
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintf(w, "{\"msg\": \"No such URL\", \"code\": 404}")
+			return
+		}
+		w.Header().Set("Content-Type", "text/html")
+		b, err := ioutil.ReadFile("frontend/index.html")
+
 		if err != nil {
-			w.Write([]byte("Error while trying to serve index"))
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintf(w, "{\"msg\": \"Error while trying to serve index: %v\", \"code\": 500}", err)
+			return
 		}
 		w.Write(b)
 	})
@@ -290,23 +300,51 @@ func main() {
 		pattern := q.Get("pattern")
 		amount, err := strconv.Atoi(q.Get("amount"))
 		if err != nil {
-			fmt.Fprintf(w, "Error while processing query (the amount part): %v", err)
+			fmt.Fprintf(w, "{\"msg\": \"Error while processing query (the amount part) because: %v\", \"code\": 500}", err)
 			return
 		}
 		// turn the request into something that can be processed
 		// lq := Question{grade, syllabus, mode, pattern, amount}
 		lq := Question{pattern, amount}
 		if lq.Reply() == nil {
-			fmt.Fprintf(w, "Sorry, we don't support that kind of problem yet")
+			fmt.Fprintf(w, "{\"msg\": \"URL not supported\", \"code\": 501}")
 			return
 		}
 		rq := &RequestReply{lq, lq.Reply()}
 		b, err := json.Marshal(rq)
 		if err != nil {
-			fmt.Fprintf(w, "Can't marshal the answer. Sorry!")
+			fmt.Fprintf(w, "{\"msg\": \"Can't marshal the answer because: %v\", \"code\": 500}", err)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
+	})
+	http.HandleFunc("/api/pdf", func (w http.ResponseWriter, r *http.Request) {
+		pdf := gofpdf.New("P", "mm", "A4", "")
+		pdf.AddPage()
+		pdf.SetFont("Times", "", 16)
+		pdf.Cell(28, 10, "1. Solve for")
+		pdf.SetFont("Times", "I", 16)
+		pdf.Cell(3, 10, "x")
+		pdf.SetFont("Times", "", 16)
+		pdf.Cell(-20, 10, ":")
+		// make a for loop with lots of numbers representing the problems
+		// pdf.Cell(0.1, 40, "1. 12x * 3 = 4")
+		questions := make([]string, 0)
+		for i := 1; i < 10; i++ {
+			questions = append(questions, NewLinearEquation().FormatEquation())
+		}
+		alphabet := "abcdefghijklmnopqrstuvwxyz"
+		var startPos float64 = 30
+		for i, v := range questions {
+			pdf.Cell(0.1, startPos+10, fmt.Sprintf("%s. %s __________", string(alphabet[i]), v))
+			startPos += 18
+		}
+		w.Header().Set("Content-Type", "application/pdf")
+		err := pdf.Output(w)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintf(w, "{\"msg\": \"Error while processing PDF document: %v\", \"code\": 500}", err)
+		}
 	})
 	fmt.Println("Starting API server.")
 	http.ListenAndServe(":8080", nil)

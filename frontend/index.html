@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/atom-one-dark.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+    <title>MathP: Math problem generation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+            text-align: center;
+        }
+        #header { font-family: 'Roboto Mono', monospace; }
+        #math { color: rgb(22, 73, 182); }
+        #mathP { color: rgb(16, 27, 85); }
+        #demo {
+            margin-top: 4px;
+            margin-right: 30%;
+            margin-left: 30%;
+            width: auto;
+            height: auto;
+        }
+        .code {
+            font-family: 'Courier New', Courier, monospace;
+            background: #282c34;
+            color: white;
+            padding: 2em;
+            font-size: 0.8em;
+            font-weight: 300;
+            text-align: left;
+            border-radius: 3px;
+        }
+        .code .line {
+            display: block;
+            margin-bottom: 0.4em;
+            color: white;
+            overflow-wrap: break-word;
+        }
+        .code .line.indent.one {margin-left:2em;}
+        .code .line.indent.two {margin-left:4em;}
+
+        #amount {
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1><span id="math">math<span id="mathP">p<span></h1>
+        <p>Math problem generation, on demand.</p>
+    </div>
+    <h2>Check it out</h2>
+    Code to get <input type="number" onchange="codeChange()" id="amount" value="2" min="1"> <select id="topic" onchange="codeChange()">
+        <option value="polynomial" selected>polynomials</option>
+        <option value="lineareq">linear equations</option>
+        <option value="quadractic">quadractics</option>
+    </select> in <select id="lang" onchange="codeChange()">
+        <option selected>curl</option>
+        <option>python3</option>
+        <option>python</option>
+        <option>golang</option>
+        <option>nodejs</option>
+    </select>
+    <!-- <span class="demo-code-option" onclick="codeChange(1)">curl</span> <span class="demo-code-option" onclick="codeChange(2)">Python 3</span> <span class="demo-code-option" onclick="codeChange(3)">Python</span> <span class="demo-code-option"  onclick="codeChange(4)">Go</span> <span class="demo-code-option" onclick="codeChange(5)">NodeJS</span> -->
+    <div id="demo">
+            <div class='code bash'><div class='line'>curl -i -H 'Accept: application/json' 'https://mathp.cleverapps.io/api/?pattern=polynomial&amount=2'</div></div>
+    </div>
+    <p>Liked that? Check out the <a href="https://github.com/vikramdurai/mathp/blob/master/readme.md">docs</a> to learn more!</p>
+    <script src="/static/js/jquery-1.12.4.js"></script>
+    <script src="/static/js/highlight.pack.js"></script>
+    <script>
+    var selectedValues = {amount: 2, topic: "polynomial", lang: "curl"};
+    hljs.initHighlightingOnLoad();
+    $('div.code').each(function(i, block) {
+        hljs.highlightBlock(block);
+    });
+    urlBuild = function(v) {
+        return 'https://mathp.cleverapps.io/api/?pattern=' + v.topic + '&amount=' + v.amount;
+    };
+    // this code controls the dynamic code part
+    codeChange = function() {
+        selectedValues = {amount: $("#amount").val(), topic: $("#topic").find(":selected").val(), lang: $("#lang").find(":selected").text()};
+        console.log("Changed values:", selectedValues)
+        var u = urlBuild(selectedValues);
+        var langSelect = {
+            "curl": "<div class='code bash'><div class='line'>curl -i -H 'Accept: application/json' " + u + "</div></div>", // curl
+            "python3": "<div class='code python'><div class='line'>import urllib.request</div><div class='line'>import json</div><div class='line'>with open(urllib.request.urlopen('"+ u +"')) as u:<div class='line indent one'>print(json.loads(u.read()))</div></div>", // python3
+            "python": "<div class='code python'><div class='line'>from urllib2 import urlopen</div><div class='line'>from json import loads</div><div class='line'>url = '"+ u +"'</div><div class='line'>print(loads(urlopen(url).read()))</div>", // python
+            "golang": "<div class='code golang'><div class='line'>package main</div><div class='line'>&nbsp</div><div class='line'>import (</div><div class='line indent one'>\"fmt\"</div><div class='line indent one'>\"io/ioutil\"</div><div class='line indent one'>\"net/http\"</div><div class='line'>)</div><div class='line'>&nbsp</div><div class='line'>func main() {</div><div class='line indent one'>url := \""+ u +"\"</div><div class='line indent one'>resp, err := http.Get(url)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>defer resp.Body.Close()</div><div class='line indent one'>html, err := ioutil.ReadAll(resp.Body)</div><div class='line indent one'>if err != nil {</div><div class='line indent two'>panic(err)</div><div class='line indent one'>}</div><div class='line indent one'>fmt.Printf(\"%s\\n\", html)</div><div class='line'>}</div></div>", // golang
+            "nodejs": "<div class='code nodejs'><div class='line'>const https = require('https');</div><div class='line'>const url = '"+u+"';</div><div class='line'><div class='line'>&nbsp</div><div class='line'>https.get(url, (res) => {</div><div class='line indent one'>res.on('data', (d) => {</div><div class='line indent two'>process.stdout.write(JSON.parse(d))</div><div class='line indent one'>});</div><div class='line'>}).on('error', (e) => console.error(e));</div></div>", // nodejs
+        };
+        $("#demo").html(langSelect[selectedValues.lang]);
+        $('div.code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
+
+    };
+    </script>
+
+</body>
+</html>

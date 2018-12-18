@@ -13,7 +13,7 @@ Math problem generation.
     | Pattern   | `polynomial`,`lineq`    |   `string`  |
     | Amount    |   `3`,`4`,`7`,`9`       |   `int`     |
 
-    Currently we only use Pattern and Amount, so feel free to omit them in the url
+    Currently we only use Pattern and Amount, so feel free to omit the others in the url
     for the time being.
 
     Usage:
@@ -24,7 +24,7 @@ Math problem generation.
     ```
     GET /api/?pattern=polynomial&amount=2
     ```
-    gets two Algebra polynomials.
+    returns a JSON-encoded reply containing two polynomials.
     
     A typical result:
     ```

@@ -97,12 +97,13 @@ type Polynomial struct {
 
 // NewPolynomial generates a completely
 // random Polynomial
-func NewPolynomial(terms int) Polynomial {
+func NewPolynomial() Polynomial {
 	p := Polynomial{make([]Term, 0)}
-	for i := 1; i < terms; i++ {
+	rand.Seed(time.Now().UnixNano())
+	numTerms := rand.Intn(3)+2
+	for i := 0; i < numTerms; i++ {
 		rand.Seed(time.Now().UnixNano())
-		x := genTerm(rand.Intn(7))
-		p.Terms = append(p.Terms, x)
+		p.Terms = append(p.Terms, genTerm(rand.Intn(4)+1))
 	}
 	return p
 }
@@ -247,9 +248,8 @@ type RequestReply struct {
 func (q Question) Reply() []string {
 	if q.Pattern == "polynomial" || q.Pattern == "Polynomial" {
 		rp := []string{}
-		rand.Seed(time.Now().UnixNano())
 		for i := 0; i < q.Amount; i++ {
-			rp = append(rp, NewPolynomial(rand.Intn(3)+1).Format())
+			rp = append(rp, NewPolynomial().Format())
 		}
 		return rp
 	}

@@ -103,7 +103,7 @@ func NewPolynomial() Polynomial {
 	numTerms := rand.Intn(3) + 2
 	for i := 0; i < numTerms; i++ {
 		rand.Seed(time.Now().UnixNano())
-		p.Terms = append(p.Terms, genTerm(rand.Intn(4)+1))
+		p.Terms = append(p.Terms, GenTerm(rand.Intn(4)+1))
 	}
 	return p
 }
@@ -161,14 +161,14 @@ func NewLinearEquation() LinearEquation {
 	t := make([]Term, 0)
 	operand := "+"
 	rand.Seed(time.Now().UnixNano())
-	t = append(t, genTerm(rand.Intn(1)))
+	t = append(t, GenTerm(rand.Intn(1)))
 	if t[0].Degree == 1 {
 		rand.Seed(time.Now().UnixNano())
-		t = append(t, genTerm(rand.Intn(1)))
+		t = append(t, GenTerm(rand.Intn(1)))
 	} else {
-		t = append(t, genTerm(1))
+		t = append(t, GenTerm(1))
 	}
-	t = append(t, genTerm(0))
+	t = append(t, GenTerm(0))
 	return LinearEquation{t, operand}
 }
 
@@ -216,9 +216,9 @@ type QuadracticEquation struct {
 func NewQuadracticEquation() QuadracticEquation {
 	t := make([]Term, 0)
 	operand := "+"
-	t = append(t, genTerm(2))
-	t = append(t, genTerm(2))
-	t = append(t, genTerm(0))
+	t = append(t, GenTerm(2))
+	t = append(t, GenTerm(2))
+	t = append(t, GenTerm(0))
 	return QuadracticEquation{t, operand}
 }
 

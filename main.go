@@ -34,7 +34,7 @@ func randbool() bool {
 	}
 }
 
-func genTerm(degree int) Term {
+func GenTerm(degree int) Term {
 	rand.Seed(time.Now().UnixNano())
 	cof := rand.Intn(10)
 	deg := degree
@@ -100,7 +100,7 @@ type Polynomial struct {
 func NewPolynomial() Polynomial {
 	p := Polynomial{make([]Term, 0)}
 	rand.Seed(time.Now().UnixNano())
-	numTerms := rand.Intn(3)+2
+	numTerms := rand.Intn(3) + 2
 	for i := 0; i < numTerms; i++ {
 		rand.Seed(time.Now().UnixNano())
 		p.Terms = append(p.Terms, genTerm(rand.Intn(4)+1))
@@ -318,7 +318,7 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(b)
 	})
-	http.HandleFunc("/api/pdf", func (w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/pdf", func(w http.ResponseWriter, r *http.Request) {
 		pdf := gofpdf.New("P", "mm", "A4", "")
 		pdf.AddPage()
 		pdf.SetFont("Times", "", 16)

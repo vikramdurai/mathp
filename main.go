@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
@@ -36,21 +35,20 @@ func randbool() bool {
 
 func GenTerm(degree int) Term {
 	rand.Seed(time.Now().UnixNano())
-	cof := rand.Intn(10)
+	cof := rand.Intn(8) + 2
 	deg := degree
-	if degree == 2 {
+	if degree == 1 {
 		if randbool() == false {
-			deg = 1
+			if randbool() == false {
+				deg = 0
+			} else {
+				deg = 1
+			}
 		}
 	}
-	if cof == 0 && deg == 1 {
-		rand.Seed(time.Now().UnixNano())
-		cof = rand.Intn(10)
-		if cof == 0 && deg == 1 {
-			rand.Seed(time.Now().UnixNano())
-			cof = rand.Intn(10)
-		}
-	}
+	// if cof == 0 {
+	// 	GenTerm(deg)
+	// }
 	vars := []string{
 		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
 		"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
@@ -69,21 +67,25 @@ func GenTerm(degree int) Term {
 }
 
 func (t Term) formatTerm() string {
-	superscriptToTwenty := []string{"⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹",
-		"¹⁰"}
+	superscript := []string{"²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "¹⁰"}
 	answer := ""
 
 	if t.Coefficient != 0 {
 		answer += fmt.Sprintf("%d", t.Coefficient)
 	}
+	if t.Coefficient != 1 {
+		if answer != fmt.Sprintf("%d", t.Coefficient) {
+			answer += fmt.Sprintf("%d", t.Coefficient)
+		}
+	}
 	if t.Degree >= 1 {
 		answer += t.Variable
 	}
 	if t.Degree > 1 {
-		answer += superscriptToTwenty[t.Degree]
+		answer += superscript[t.Degree]
 	}
 	if answer == "" {
-		t.Degree += 1
+		t = GenTerm(t.Degree)
 		return t.formatTerm()
 	}
 	return answer
@@ -159,47 +161,47 @@ type LinearEquation struct {
 // LinearEquation
 func NewLinearEquation() LinearEquation {
 	t := make([]Term, 0)
-	operand := "+"
-	rand.Seed(time.Now().UnixNano())
-	t = append(t, GenTerm(rand.Intn(1)))
-	if t[0].Degree == 1 {
-		rand.Seed(time.Now().UnixNano())
-		t = append(t, GenTerm(rand.Intn(1)))
+	var operand string
+	if randbool() == false {
+		operand = "-"
 	} else {
-		t = append(t, GenTerm(1))
+		operand = "+"
 	}
+	t = append(t, GenTerm(1))
+	t = append(t, GenTerm(1))
 	t = append(t, GenTerm(0))
 	return LinearEquation{t, operand}
 }
 
-func (l LinearEquation) Solve() {
-	ls := l.FormatEquation()
-	// 12x - 4 = 20
-	// 12x - 4 + 4 = 20 + 4
-	// 12x = 20 + 4
+// the unfinished solver code
+// func (l LinearEquation) Solve() {
+// 	ls := l.FormatEquation()
+// 	// 12x - 4 = 20
+// 	// 12x - 4 + 4 = 20 + 4
+// 	// 12x = 20 + 4
 
-	// identify the left and right sides of the equation
-	var leftEq, rightEq string
-	eqArr := strings.FieldsFunc(ls, func(c rune) bool { return c == '=' })
-	leftEq = eqArr[0]
-	rightEq = eqArr[1]
+// 	// identify the left and right sides of the equation
+// 	var leftEq, rightEq string
+// 	eqArr := strings.FieldsFunc(ls, func(c rune) bool { return c == '=' })
+// 	leftEq = eqArr[0]
+// 	rightEq = eqArr[1]
 
-	// spread over the operations
-	leftEqSlice := strings.Split(leftEq, " ")
-	for i, v := range leftEqSlice {
-		if v == "+" || v == "-" {
-			numStr := leftEqSlice[i+1]
-			var strToSuffix string
-			if v == "+" {
-				strToSuffix = "-" + numStr
-			} else if v == "-" {
-				strToSuffix = "+" + numStr
-			}
-			leftEq += strToSuffix
-			rightEq += strToSuffix
-		}
-	}
-}
+// 	// spread over the operations
+// 	leftEqSlice := strings.Split(leftEq, " ")
+// 	for i, v := range leftEqSlice {
+// 		if v == "+" || v == "-" {
+// 			numStr := leftEqSlice[i+1]
+// 			var strToSuffix string
+// 			if v == "+" {
+// 				strToSuffix = "-" + numStr
+// 			} else if v == "-" {
+// 				strToSuffix = "+" + numStr
+// 			}
+// 			leftEq += strToSuffix
+// 			rightEq += strToSuffix
+// 		}
+// 	}
+// }
 
 // FormatEquation formats the linear equation
 func (l LinearEquation) FormatEquation() string {
@@ -215,7 +217,12 @@ type QuadracticEquation struct {
 // QuadracticEquation
 func NewQuadracticEquation() QuadracticEquation {
 	t := make([]Term, 0)
-	operand := "+"
+	var operand string
+	if randbool() == false {
+		operand = "-"
+	} else {
+		operand = "+"
+	}
 	t = append(t, GenTerm(2))
 	t = append(t, GenTerm(2))
 	t = append(t, GenTerm(0))

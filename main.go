@@ -13,15 +13,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 )
 
-// Term represents an individual
-// term in any algebraic pattern
-type Term struct {
-	Coefficient int
-	Positive    bool
-	Variable    string
-	Degree      int
-}
-
+// Helper functions.
 func randbool() bool {
 	c := make(chan struct{})
 	close(c)
@@ -31,6 +23,23 @@ func randbool() bool {
 	case <-c:
 		return false
 	}
+}
+
+func loopT(n int) []Term {
+	termSlice := make([]Term, 0)
+	for i := 0; i < n; i++ {
+		termSlice = append(termSlice, GenTerm(1))
+	}
+	return termSlice
+}
+
+// Term represents an individual
+// term in any algebraic pattern
+type Term struct {
+	Coefficient int
+	Positive    bool
+	Variable    string
+	Degree      int
 }
 
 func GenTerm(degree int) Term {
@@ -141,6 +150,46 @@ func (p Polynomial) Format() string {
 	return polynomial
 }
 
+// AlgebraExpr represents
+// a completely random algebraic
+// expression
+type AlgebraExpr struct {
+	Terms   []Term
+	operand string
+	// this represents the value of
+	// x in any given expression
+	VarVal int
+}
+
+// random easter egg
+var egg = []int{1, 1, 2, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 6, 7, 8, 9, 10}
+
+// NewAlgebraExpr generates a new
+// algebraic expression in the form
+// of the exported struct AlgebraExpr.
+func NewAlgebraExpr() AlgebraExpr {
+	rand.Seed(time.Now().UnixNano())
+	// this little trick ensures a nonzero
+	// value for the variable
+	variableValue := rand.Intn(9) + 1
+	termSlice := loopT(2)
+	var operand string
+	if randbool() == false {
+		operand = "-"
+	} else {
+		operand = "+"
+	}
+	return AlgebraExpr{termSlice, operand, variableValue}
+}
+
+// FormatExpr uses the structural representation
+// of AlgebraExpr and formats the information to
+// a mathematical format
+func (alx AlgebraExpr) FormatExpr() string {
+	return fmt.Sprintf("%s %s %s (x = %d)", alx.Terms[0].formatTerm(),
+		alx.operand, alx.Terms[1].formatTerm(), alx.VarVal)
+}
+
 // LinearEquation represents a
 // random linear equation to solve
 type LinearEquation struct {
@@ -208,6 +257,9 @@ func (l LinearEquation) FormatEquation() string {
 	return fmt.Sprintf("%s %s %s = %s", l.Terms[0].formatTerm(), l.operand, l.Terms[1].formatTerm(), l.Terms[2].formatTerm())
 }
 
+// QuadracticEquation is mainly
+// a second-degree version of
+// LinearEquation
 type QuadracticEquation struct {
 	Terms   []Term
 	operand string
@@ -260,7 +312,14 @@ func (q Question) Reply() []string {
 		}
 		return rp
 	}
-	if q.Pattern == "lineareq" {
+	if q.Pattern == "alx" {
+		rp := []string{}
+		for i := 0; i < q.Amount; i++ {
+			rp = append(rp, NewAlgebraExpr().FormatExpr())
+		}
+		return rp
+	}
+	if q.Pattern == "lineq" {
 		rp := []string{}
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewLinearEquation().FormatEquation())

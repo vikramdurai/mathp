@@ -25,6 +25,14 @@ func randbool() bool {
 	}
 }
 
+// I just grabbed this code from
+// golangcookbook.com/chapters/arrays/reverse
+func reverse(numbers []string) {
+	for i, j := 0, len(numbers)-1; i < j; i, j = i+1, j-1 {
+		numbers[i], numbers[j] = numbers[j], numbers[i]
+	}
+}
+
 func loopT(n int) []Term {
 	termSlice := make([]Term, 0)
 	for i := 0; i < n; i++ {
@@ -42,6 +50,9 @@ type Term struct {
 	Degree      int
 }
 
+// GenTerm generates a completely
+// random term. This is the backbone
+// of the whole program.
 func GenTerm(degree int) Term {
 	rand.Seed(time.Now().UnixNano())
 	cof := rand.Intn(8) + 2
@@ -388,28 +399,44 @@ func main() {
 		pdf := gofpdf.New("P", "mm", "A4", "")
 		pdf.AddPage()
 		pdf.SetFont("Times", "", 16)
-		pdf.Cell(28, 10, "1. Solve for")
-		pdf.SetFont("Times", "I", 16)
-		pdf.Cell(3, 10, "x")
-		pdf.SetFont("Times", "", 16)
-		pdf.Cell(-20, 10, ":")
-		// make a for loop with lots of numbers representing the problems
-		// pdf.Cell(0.1, 40, "1. 12x * 3 = 4")
-		questions := make([]string, 0)
-		for i := 1; i < 10; i++ {
-			questions = append(questions, NewLinearEquation().FormatEquation())
+		pdf.CellFormat(190, 20, "Solve the expressions using the values given.", "", 1, "TC", false, 0, "")
+		dataSlice := make([]AlgebraExpr, 0)
+		data := make([]string, 0)
+		for i := 0; i < 28; i++ {
+			dataSlice = append(dataSlice, NewAlgebraExpr())
 		}
-		alphabet := "abcdefghijklmnopqrstuvwxyz"
-		var startPos float64 = 30
-		for i, v := range questions {
-			pdf.Cell(0.1, startPos+10, fmt.Sprintf("%s. %s __________", string(alphabet[i]), v))
-			startPos += 18
+		for i, v := range dataSlice {
+			data = append(data, fmt.Sprintf("%d.  %s", i+1, v.FormatExpr()))
 		}
-		w.Header().Set("Content-Type", "application/pdf")
+		reverse(data)
+		pdf.SetFont("Times", "", 12)
+		// WARNING UNREADABLE CODE AHEAD!
+		// READ AT YOUR OWN RISK!
+		for i := 1; i < 4; i++ {
+			for j := 1; j < 4; j++ {
+				var x string
+				x, data = data[len(data)-1], data[:len(data)-1]
+				pdf.CellFormat(50, 0, x, "", 0, "LT", false, 0, "")
+			}
+			var x string
+			x, data = data[len(data)-1], data[:len(data)-1]
+			pdf.CellFormat(50, 35, x, "", 1, "LT", false, 0, "")
+			for k := 1; k < 4; k++ {
+				x, data = data[len(data)-1], data[:len(data)-1]
+				pdf.CellFormat(50, 35, x, "", 0, "LT", false, 0, "")
+			}
+			x, data = data[len(data)-1], data[:len(data)-1]
+			pdf.CellFormat(50, 35, x, "", 1, "LT", false, 0, "")
+		}
+		var x string
+		for j := 1; j < 5; j++ {
+			x, data = data[len(data)-1], data[:len(data)-1]
+			pdf.CellFormat(50, 0, x, "", 0, "LT", false, 0, "")
+		}
 		err := pdf.Output(w)
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			fmt.Fprintf(w, "{\"msg\": \"Error while processing PDF document: %v\", \"code\": 500}", err)
+			fmt.Fprintf(w, "{\"msg\":\"Can't give pdf output because: %v\", \"code\": 500}", err)
+			return
 		}
 	})
 	fmt.Println("Starting API server.")

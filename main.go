@@ -181,8 +181,9 @@ var egg = []int{1, 1, 2, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 6, 7, 8, 9, 10}
 func NewAlgebraExpr() AlgebraExpr {
 	rand.Seed(time.Now().UnixNano())
 	// this little trick ensures a nonzero
-	// value for the variable
+	// psuedorandom value for the variable
 	variableValue := rand.Intn(9) + 1
+	// functions make for extremely concise code
 	termSlice := loopT(2)
 	var operand string
 	if randbool() == false {
@@ -412,6 +413,9 @@ func main() {
 		pdf.SetFont("Times", "", 12)
 		// WARNING UNREADABLE CODE AHEAD!
 		// READ AT YOUR OWN RISK!
+		// I'll have to refactor this sometime
+		// it's not my fault that fpdf has a
+		// shitty Cell API
 		for i := 1; i < 4; i++ {
 			for j := 1; j < 4; j++ {
 				var x string
@@ -433,6 +437,7 @@ func main() {
 			x, data = data[len(data)-1], data[:len(data)-1]
 			pdf.CellFormat(50, 0, x, "", 0, "LT", false, 0, "")
 		}
+		// -- END UNREADABLE CODE --
 		err := pdf.Output(w)
 		if err != nil {
 			fmt.Fprintf(w, "{\"msg\":\"Can't give pdf output because: %v\", \"code\": 500}", err)

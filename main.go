@@ -460,7 +460,7 @@ func main() {
 			return
 		}
 		rq := &RequestReply{lq, lq.Reply()}
-		b, err := json.Marshal(rq)
+		b, err := json.MarshalIndent(rq, "", "    ")
 		if err != nil {
 			fmt.Fprintf(w, "{\"msg\": \"Can't marshal the answer because: %v\", \"code\": 500}", err)
 		}

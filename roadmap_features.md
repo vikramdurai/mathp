@@ -7,11 +7,11 @@
 - [ ] Automatic Docker build on-push using Github API.
 - [ ] On-site docs.
 - [ ] Tutorial on how to grok mathp API.
-- [ ] Much better code examples (e.g ones that work) **(finished, needs testing)**
+- [*] Much better code examples (e.g ones that work) **(done)**
 - [ ] Billing for every use of tokens
 - [ ] Beta testers.
 - [ ] `interface{}` support with Go.
-- [ ] Word problems.
+- [ ] Word problems. **(in progress)**
 - [ ] Graphs, tables and pie charts.
 - [ ] Ranking by grade.
 - [ ] Generating by syllabus and topic.

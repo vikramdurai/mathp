@@ -297,6 +297,71 @@ func (q QuadracticEquation) FormatEquation() string {
 	return fmt.Sprintf("%s %s %s = %s", q.Terms[0].formatTerm(), q.operand, q.Terms[1].formatTerm(), q.Terms[2].formatTerm())
 }
 
+// WordProblem represents any random word problem.
+// It's a unique class of problem in that it doesn't use
+// the GenTerm() function at all, since algebraic terms are
+// not strictly related to word problems.
+// WordProblem for the time being is merely a disguised arithmetic
+// word problem. I'll add more complex ones later. TODO
+type WordProblem struct {
+	// People represents the characters used in the word problem
+	// The number of people is always 2 for the time being. TODO
+	People []person
+	// e.g apples, oranges
+	Item string
+	// arithmetic is a must in word problems
+	Operator string
+}
+
+type person struct {
+	name string
+	val  int
+}
+
+// NewWordProblem makes new Word Problems
+func NewWordProblem() WordProblem {
+	possibleNames := []string{"Johnny", "Rohit", "Maple", "George", "Ankit", "Eugene", "Vikram"}
+	// Remember, we have 2 people with 2 corresponding values
+	// these are the names
+	rand.Seed(time.Now().UnixNano())
+	name1 := possibleNames[rand.Intn(len(possibleNames))]
+	rand.Seed(time.Now().UnixNano())
+	name2 := possibleNames[rand.Intn(len(possibleNames))]
+	// these are the values
+	// e.g the number of apples Johnny has
+	rand.Seed(time.Now().Unix())
+	value1 := rand.Intn(9) + 1
+	// e.g Vikram gives 5 apples
+	rand.Seed(time.Now().Unix())
+	value2 := rand.Intn(value1-1) + 1
+	// this is the arithmetic that unites them both
+	op := ""
+	if randbool() {
+		op = "+"
+	} else {
+		op = "-"
+	}
+	// item of random choice
+	rand.Seed(time.Now().Unix())
+	randItems := []string{"apples", "oranges", "mangoes", "walnuts", "peanuts"}
+	// put it all together
+	return WordProblem{[]person{person{name1, value1}, person{name2, value2}}, randItems[rand.Intn(len(randItems))], op}
+}
+
+// FormatProblem is the actual function that converts
+// numbers into an actual word problem
+// e.g (Johnny = 4) - (Rohit = 2) ->
+// "Johnny has 4 apples, Rohit took 2 apples. How many does Johnny have?"
+func (w WordProblem) FormatProblem() string {
+	// this is the return value
+	if w.Operator == "+" {
+		return fmt.Sprintf("%s has %d %s. %s gave %s %d %s. How many %s does %s now have?",
+			w.People[0].name, w.People[0].val, w.Item, w.People[1].name, w.People[0].name, w.People[1].val, w.Item, w.Item, w.People[0].name)
+	}
+	return fmt.Sprintf("%s has %d %s. %s took %d %s. How many %s does %s have?",
+		w.People[0].name, w.People[0].val, w.Item, w.People[1].name, w.People[1].val, w.Item, w.Item, w.People[0].name)
+}
+
 // Question represents client request for problems.
 type Question struct {
 	// Grade    int    `json:"grade"`
@@ -316,7 +381,7 @@ type RequestReply struct {
 // Reply creates problems according to question criteria
 // and returns it.
 func (q Question) Reply() []string {
-	if q.Pattern == "polynomial" || q.Pattern == "Polynomial" {
+	if q.Pattern == "polynomial" {
 		rp := []string{}
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewPolynomial().Format())
@@ -337,10 +402,17 @@ func (q Question) Reply() []string {
 		}
 		return rp
 	}
-	if q.Pattern == "quadractic" || q.Pattern == "Quadractic" {
+	if q.Pattern == "quadr" {
 		rp := []string{}
 		for i := 0; i < q.Amount; i++ {
 			rp = append(rp, NewQuadracticEquation().FormatEquation())
+		}
+		return rp
+	}
+	if q.Pattern == "wrdp" {
+		rp := []string{}
+		for i := 0; i < q.Amount; i++ {
+			rp = append(rp, NewWordProblem().FormatProblem())
 		}
 		return rp
 	}

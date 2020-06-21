@@ -1,6 +1,13 @@
 # mathp
 Math problem generation.
-
+## Install
+Prerequisites:
+* Golang (https://golang.org)
+```
+git clone https://github.com/vikramdurai/mathp
+cd mathp
+go install
+```
 ## API Calls and Parameters
 - **/api/**:
     the API endpoint. Uses the following parameters:
